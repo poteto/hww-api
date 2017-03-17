@@ -13,6 +13,7 @@
     "airtable": "^0.4.5",
     "body-parser": "^1.17.1",
     "express": "4.13.3",
+    "lodash": "^4.17.4",
     "node-fetch": "^1.6.3",
     "parse-diff": "^0.4.0"
   },
