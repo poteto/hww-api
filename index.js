@@ -20,10 +20,13 @@ app.post('/webhook', (req, res) => {
     fetchCommit(commitsUrl)
       .then(processDiff)
       .catch((err) => winston.error(err));
+    return res.sendStatus(201);
   }
-  res.send('OK');
+  return res.sendStatus(200);
 });
 
 app.listen(app.get('port'), () => {
   winston.info('Node app is running on port', app.get('port'));
 });
+
+module.exports = app;
