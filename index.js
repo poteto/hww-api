@@ -12,17 +12,18 @@ const app = express();
 app.use(bodyParser.json());
 app.set('port', (process.env.PORT || 5000));
 
-app.post('/webhook', function(request, response) {
-  let newSha = request.body.after;
-  if (newSha) {
-    let commitsUrl = get(request, 'body.repository.commits_url', '').replace('{/sha}', `/${newSha}`);
+app.post('/webhook', (req, res) => {
+  let { after: newSha, ref } = req.body;
+  let isMaster = ref === 'refs/heads/master';
+  if (isMaster && newSha) {
+    let commitsUrl = get(req, 'body.repository.commits_url', '').replace('{/sha}', `/${newSha}`);
     fetchCommit(commitsUrl)
       .then(processDiff)
       .catch((err) => winston.error(err));
   }
-  response.send('OK');
+  res.send('OK');
 });
 
-app.listen(app.get('port'), function() {
+app.listen(app.get('port'), () => {
   winston.info('Node app is running on port', app.get('port'));
 });
