@@ -4,22 +4,28 @@ const winston = require('winston');
 const _object = require('lodash/object');
 const { get } = _object;
 
+const verifySignatureMiddleware = require('./middleware/verify-signature');
 const fetchCommit = require('./lib/fetch-commit');
 const processDiff = require('./lib/process-diff');
-
 const app = express();
 
 app.use(bodyParser.json());
 app.set('port', (process.env.PORT || 5000));
 
-app.post('/webhook', (req, res) => {
+app.post('/webhook', verifySignatureMiddleware, (req, res) => {
+  if (req.get('X-Github-Event') !== 'push') {
+    return res.sendStatus(200);
+  }
   let { after: newSha, ref } = req.body;
   let isMaster = ref === 'refs/heads/master';
   if (isMaster && newSha) {
     let commitsUrl = get(req, 'body.repository.commits_url', '').replace('{/sha}', `/${newSha}`);
     fetchCommit(commitsUrl)
       .then(processDiff)
-      .catch((err) => winston.error(err));
+      .catch((err) => {
+        winston.error(err);
+        return res.sendStatus(500);
+      });
     return res.sendStatus(201);
   }
   return res.sendStatus(200);
