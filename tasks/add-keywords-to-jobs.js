@@ -17,8 +17,7 @@ const addKeywordsToJobs = () => {
           .then((keywords) => jobsTable.update(id, { 'Keywords': [...keywords] }, { typecast: true }))
           .catch((err) => winston.error(err));
       });
-    })
-
+    });
 }
 
 module.exports = addKeywordsToJobs;
